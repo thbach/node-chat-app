@@ -29,10 +29,11 @@ socket.on('newLocationMessage', message => {
 const form = document.getElementById('message-form');
 form.addEventListener('submit', e => {
   e.preventDefault();
-  const msg = document.getElementById('message').value;
-  socket.emit('createMessage', {from: 'tbach', text: msg}, data => {
+  const textbox = document.getElementById('message');
+  socket.emit('createMessage', {from: 'tbach', text: textbox.value}, data => {
     console.log('Got it', data);
   });
+  textbox.value = '';
 });
 
 const locationButton = document.getElementById('send-location');
@@ -41,14 +42,18 @@ locationButton.addEventListener('click', () => {
     return alert('Geolocation not supported by your browser');
   }
 
+  locationButton.disabled = 'disabled';
+
   navigator.geolocation.getCurrentPosition(
     position => {
+      locationButton.disabled = '';
       socket.emit('createLocationMessage', {
         lat: position.coords.latitude,
         long: position.coords.longitude,
       });
     },
     () => {
+      locationButton.disabled = '';
       alert('Unable to fetch location.');
     }
   );
