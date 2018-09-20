@@ -1,5 +1,27 @@
 const socket = io();
 
+const messageHtmlTemplate = `
+<li class="message">
+  <div class="message__title">
+    <h4>{{from}}</h4>
+    <span>{{createdAt}}</span>
+  </div>
+  <div class="message__body"><p>{{text}}</p></div>
+</li>`;
+
+const locationHtmlTemplate = `
+<li class="message">
+  <div class="message__title">
+    <h4>{{from}}</h4>
+    <span>{{createdAt}}</span>
+  </div>
+  <div class="message__body">
+    <p>
+      <a target="_blank" href="{{url}}">My current location</a>
+    </p>
+  </div>
+</li>`;
+
 socket.on('connect', () => {
   console.log('Connected to Server');
 });
@@ -9,21 +31,27 @@ socket.on('disconnect', () => {
 });
 
 socket.on('newMessage', message => {
-  const li = document.createElement('li');
-  const textNode = document.createTextNode(`${message.from}: ${message.text}`);
-  li.appendChild(textNode);
-  document.getElementById('messages').appendChild(li);
+  const template = Handlebars.compile(messageHtmlTemplate);
+  const formattedTime = moment(message.createAt).format('h:mm a');
+  const data = template({
+    from: message.from,
+    createdAt: formattedTime,
+    text: message.text,
+  });
+
+  document.getElementById('messages').innerHTML += data;
 });
 
 socket.on('newLocationMessage', message => {
-  const li = document.createElement('li');
-  const a = document.createElement('a');
-  a.target = '_blank';
-  a.href = message.url;
-  a.text = 'My Current Location';
-  li.appendChild(document.createTextNode(`${message.from}: `));
-  li.appendChild(a);
-  document.getElementById('messages').appendChild(li);
+  const template = Handlebars.compile(locationHtmlTemplate);
+  const formattedTime = moment(message.createAt).format('h:mm a');
+  const data = template({
+    from: message.from,
+    createdAt: formattedTime,
+    url: message.url,
+  });
+
+  document.getElementById('messages').innerHTML += data;
 });
 
 const form = document.getElementById('message-form');
