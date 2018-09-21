@@ -1,26 +1,21 @@
 const socket = io();
 
-const messageHtmlTemplate = `
-<li class="message">
-  <div class="message__title">
-    <h4>{{from}}</h4>
-    <span>{{createdAt}}</span>
-  </div>
-  <div class="message__body"><p>{{text}}</p></div>
-</li>`;
+const scrollToBottom = function scrollToBottom() {
+  // Selectors
+  const messages = document.getElementById('messages');
+  const newMessage = messages.lastElementChild;
+  const lastMessageHeight =
+    newMessage.previousElementSibling != null ? newMessage.previousElementSibling.clientHeight : 0;
 
-const locationHtmlTemplate = `
-<li class="message">
-  <div class="message__title">
-    <h4>{{from}}</h4>
-    <span>{{createdAt}}</span>
-  </div>
-  <div class="message__body">
-    <p>
-      <a target="_blank" href="{{url}}">My current location</a>
-    </p>
-  </div>
-</li>`;
+  // Heights
+  const {clientHeight} = messages;
+  const {scrollTop} = messages;
+  const {scrollHeight} = messages;
+
+  if (clientHeight + scrollTop + newMessage.clientHeight + lastMessageHeight >= scrollHeight) {
+    messages.scrollTop = scrollHeight;
+  }
+};
 
 socket.on('connect', () => {
   console.log('Connected to Server');
@@ -31,7 +26,7 @@ socket.on('disconnect', () => {
 });
 
 socket.on('newMessage', message => {
-  const template = Handlebars.compile(messageHtmlTemplate);
+  const template = Handlebars.compile(document.getElementById('message-template').innerHTML);
   const formattedTime = moment(message.createAt).format('h:mm a');
   const data = template({
     from: message.from,
@@ -40,10 +35,11 @@ socket.on('newMessage', message => {
   });
 
   document.getElementById('messages').innerHTML += data;
+  scrollToBottom();
 });
 
 socket.on('newLocationMessage', message => {
-  const template = Handlebars.compile(locationHtmlTemplate);
+  const template = Handlebars.compile(document.getElementById('location-message-template').innerHTML);
   const formattedTime = moment(message.createAt).format('h:mm a');
   const data = template({
     from: message.from,
@@ -52,6 +48,7 @@ socket.on('newLocationMessage', message => {
   });
 
   document.getElementById('messages').innerHTML += data;
+  scrollToBottom();
 });
 
 const form = document.getElementById('message-form');
