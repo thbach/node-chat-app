@@ -18,7 +18,16 @@ const scrollToBottom = function scrollToBottom() {
 };
 
 socket.on('connect', () => {
-  console.log('Connected to Server');
+  const params = deparam(window.location.search.substr(1));
+
+  socket.emit('join', params, err => {
+    if (err) {
+      alert(err);
+      window.location.href = '/';
+    } else {
+      console.log('no error');
+    }
+  });
 });
 
 socket.on('disconnect', () => {
