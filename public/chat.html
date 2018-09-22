@@ -11,7 +11,9 @@
 <body class="chat">
   <div class="chat__sidebar">
     <h3>People</h3>
-    <div id="users"></div>
+    <div id="users">
+      <ol id="usersList"></ol>
+    </div>
   </div>
 
   <div class="chat__main">
@@ -24,6 +26,10 @@
       <button id="send-location">Send location</button>
     </div>
   </div>
+
+  <script id="users-template" type="text/template">
+    <li>{{user}}</li>
+  </script>
 
   <script id="message-template" type="text/template">
     <li class="message">

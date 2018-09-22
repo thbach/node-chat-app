@@ -34,6 +34,14 @@ socket.on('disconnect', () => {
   console.log('Disconnected from Server');
 });
 
+socket.on('updateUserList', users => {
+  const template = Handlebars.compile(document.getElementById('users-template').innerHTML);
+  document.getElementById('usersList').innerHTML = '';
+  users.forEach(user => {
+    document.getElementById('usersList').innerHTML += template({user});
+  });
+});
+
 socket.on('newMessage', message => {
   const template = Handlebars.compile(document.getElementById('message-template').innerHTML);
   const formattedTime = moment(message.createAt).format('h:mm a');
@@ -64,7 +72,7 @@ const form = document.getElementById('message-form');
 form.addEventListener('submit', e => {
   e.preventDefault();
   const textbox = document.getElementById('message');
-  socket.emit('createMessage', {from: 'tbach', text: textbox.value}, data => {
+  socket.emit('createMessage', {text: textbox.value}, data => {
     console.log('Got it', data);
   });
   textbox.value = '';
